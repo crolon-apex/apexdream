@@ -23,6 +23,11 @@ pub fn print(f: &mut super::Output, bin: PeFile<'_>) {
 	studio_hdr(f, bin);
 	highlight_settings(f, bin);
 	network_var(f, bin);
+	netchannel(f, bin);
+	pcomamnd(f, bin);
+	lastCommand(f, bin);
+	observerList(f, bin);
+
 	let _ = writeln!(f.human, "```\n");
 	let _ = writeln!(f.ini);
 }
@@ -55,6 +60,56 @@ fn entity_list(f: &mut super::Output, bin: PeFile<'_>) {
 		crate::print_error("unable to find cl_entitylist!");
 	}
 }
+
+fn netchannel(f: &mut super::Output, bin: PeFile<'_>) {
+	let mut save = [0; 4];
+	// old: pat!("833D${?'}FF 74? 0FB70D${'} 0FB705${'}")
+	if bin.scanner().matches_code(pat!("488B0D${'} E8${[100-120] F20F1005[4] F20F5805[4] 660F2F83u2}")).next(&mut save) {
+		let local_entity_handle = save[1];
+		let _ = writeln!(f.ini, "NetChannel={:#x}", local_entity_handle);
+	}
+	else {
+		crate::print_error("unable to find NetChannel!");
+	}
+}
+
+fn pcomamnd(f: &mut super::Output, bin: PeFile<'_>) {
+	let mut save = [0; 4];
+	// old: pat!("833D${?'}FF 74? 0FB70D${'} 0FB705${'}")
+	if bin.scanner().matches_code(pat!("4C8D25${\"_3P\"} [15-25] 488B05${'} 488D0D")).next(&mut save) {
+		let local_entity_handle = save[1];
+		let _ = writeln!(f.ini, "PCommand={:#x}", local_entity_handle);
+	}
+	else {
+		crate::print_error("unable to find PCommand!");
+	}
+}
+
+fn lastCommand(f: &mut super::Output, bin: PeFile<'_>) {
+	let mut save = [0; 4];
+	// old: pat!("833D${?'}FF 74? 0FB70D${'} 0FB705${'}")
+	if bin.scanner().matches_code(pat!("76%{488B0D${'} } 8B05${'}")).next(&mut save) {
+		let local_entity_handle = save[2];
+		let _ = writeln!(f.ini, "LastCommand={:#x}", local_entity_handle);
+	}
+	else {
+		crate::print_error("unable to find LastCommand!");
+	}
+}
+
+fn observerList(f: &mut super::Output, bin: PeFile<'_>){
+	let mut save = [0; 4];
+	// old: pat!("833D${?'}FF 74? 0FB70D${'} 0FB705${'}")
+	if bin.scanner().matches_code(pat!("48 8B 0D ${'} 48 85 C9 74 ? 48 8B 01 FF ? ? 48 85 C0 74 ? 48 63 4E 38")).next(&mut save) {
+		let local_entity_handle = save[1];
+		let _ = writeln!(f.ini, "ObserverList={:#x}", local_entity_handle);
+	}
+	else {
+		crate::print_error("unable to find Observer List!");
+	}
+}
+
+
 
 fn local_entity_handle(f: &mut super::Output, bin: PeFile<'_>) {
 	let mut save = [0; 4];

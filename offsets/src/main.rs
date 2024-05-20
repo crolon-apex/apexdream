@@ -1,4 +1,6 @@
 use std::{env, fmt};
+use std::fs::File;
+use std::io::{self, Read, Seek, SeekFrom};
 use std::path::PathBuf;
 
 mod analysis;
@@ -21,18 +23,34 @@ pub fn print_error(error: impl fmt::Display) {
 	eprintln!("{}", error);
 }
 
-fn main() {
+fn read_pattern_from_file(file_path: &str, offset: u64, length: usize) -> io::Result<String> {
+	let mut file = File::open(file_path)?;
+	file.seek(SeekFrom::Start(offset))?;
+	let mut buffer = vec![0; length];
+	file.read_exact(&mut buffer)?;
+
+	// 将字节转换为模式字符串
+	Ok(buffer.iter()
+		.map(|byte| format!("{:02X}", byte))
+		.collect::<Vec<String>>()
+		.join(" "))
+}
+
+
+fn main() -> Result<(), std::io::Error> {
+
 	match parse_arg() {
 		None => {
-			eprintln!("Give the path to a dump apex binary.");
-			return;
+			print!("HI");
+			Ok(())
 		},
 		Some((path, human)) => {
 			let filemap = pelite::FileMap::open(&path).unwrap();
 			let mut output = analysis::Output::default();
 			analysis::parse(&mut output, filemap.as_ref());
-			let s = if human { &output.human } else { &output.ini };
+			let s = &output.ini;
 			print!("{}", s);
+			Ok(())
 		},
 	}
 }
