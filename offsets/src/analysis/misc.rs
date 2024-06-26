@@ -24,9 +24,9 @@ pub fn print(f: &mut super::Output, bin: PeFile<'_>) {
 	highlight_settings(f, bin);
 	network_var(f, bin);
 	netchannel(f, bin);
-	pcomamnd(f, bin);
-	lastCommand(f, bin);
-	observerList(f, bin);
+	p_commands(f, bin);
+	last_command(f, bin);
+	observer_list(f, bin);
 
 	let _ = writeln!(f.human, "```\n");
 	let _ = writeln!(f.ini);
@@ -73,7 +73,7 @@ fn netchannel(f: &mut super::Output, bin: PeFile<'_>) {
 	}
 }
 
-fn pcomamnd(f: &mut super::Output, bin: PeFile<'_>) {
+fn p_commands(f: &mut super::Output, bin: PeFile<'_>) {
 	let mut save = [0; 4];
 	// old: pat!("833D${?'}FF 74? 0FB70D${'} 0FB705${'}")
 	if bin.scanner().matches_code(pat!("4C8D25${\"_3P\"} [15-25] 488B05${'} 488D0D")).next(&mut save) {
@@ -85,7 +85,7 @@ fn pcomamnd(f: &mut super::Output, bin: PeFile<'_>) {
 	}
 }
 
-fn lastCommand(f: &mut super::Output, bin: PeFile<'_>) {
+fn last_command(f: &mut super::Output, bin: PeFile<'_>) {
 	let mut save = [0; 4];
 	// old: pat!("833D${?'}FF 74? 0FB70D${'} 0FB705${'}")
 	if bin.scanner().matches_code(pat!("76%{488B0D${'} } 8B05${'}")).next(&mut save) {
@@ -97,7 +97,7 @@ fn lastCommand(f: &mut super::Output, bin: PeFile<'_>) {
 	}
 }
 
-fn observerList(f: &mut super::Output, bin: PeFile<'_>){
+fn observer_list(f: &mut super::Output, bin: PeFile<'_>){
 	let mut save = [0; 4];
 	// old: pat!("833D${?'}FF 74? 0FB70D${'} 0FB705${'}")
 	if bin.scanner().matches_code(pat!("48 8B 0D ${'} 48 85 C9 74 ? 48 8B 01 FF ? ? 48 85 C0 74 ? 48 63 4E 38")).next(&mut save) {

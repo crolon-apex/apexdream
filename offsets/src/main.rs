@@ -36,7 +36,9 @@ fn read_pattern_from_file(file_path: &str, offset: u64, length: usize) -> io::Re
 		.join(" "))
 }
 
+//in offsets folder!!
 
+//cargo run --release "E:\application\Steam\steamapps\common\Apex Legends\start_protected_game_dump.exe" ini > stdout.ini
 fn main() -> Result<(), std::io::Error> {
 
 	match parse_arg() {
